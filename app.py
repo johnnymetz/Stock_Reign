@@ -41,8 +41,7 @@ def index():
     stats['min_pct_change_category'] = get_pct_change_category(row={'pct_change': df['pct_change'].min()})
     stats['max_pct_change_category'] = get_pct_change_category(row={'pct_change': df['pct_change'].max()})
     most_recent_date = df.index[-1]
-    df_pct_change = (df.loc[most_recent_date, 'Close'] - df.loc[start, 'Open']) / df.loc[
-        start, 'Open']
+    df_pct_change = (df.loc[most_recent_date, 'Close'] - df.loc[start, 'Close']) / df.loc[start, 'Close']
     df_total_days = (most_recent_date - start).days
     stats['total_pct_change'] = df_pct_change
     stats['total_pct_change_category'] = get_pct_change_category(row={'pct_change': stats['total_pct_change']})
