@@ -1,0 +1,69 @@
+{% macro edit_dates() %}
+	<div class="modal fade" id="edit_dates_modal" tabindex="-1">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+					<h4 class="modal-title">Edit Dates</h4>
+				</div>
+				<form action="/edit_dates" method="POST">
+					<div class="modal-body">
+						<div class="justify-buttons">
+							<button type="button" class="btn btn-default" id="one-week">1 Week</button>
+							<button type="button" class="btn btn-default active" id="one-month">1 Month</button>
+							<button type="button" class="btn btn-default" id="three-months">3 Months</button>
+							<button type="button" class="btn btn-default" id="six-months">6 Months</button>
+							<button type="button" class="btn btn-default" id="one-year">1 Year</button>
+						</div>
+						<div class="row">
+							<div class="col-sm-6">
+								<div class="form-group">
+									<label for="start_date" class="control-label">Start Date:</label>
+									<input type="text" id="start_date" name="start_date" class="datepicker form-control" required>
+								</div>
+							</div><!-- .col-sm-6 -->
+							<div class="col-sm-6">
+								<div class="form-group">
+									<label for="end_date" class="control-label">End Date:</label>
+									<input type="text" id="end_date" name="end_date" class="datepicker form-control" required>
+								</div>
+							</div><!-- .col-sm-6 -->
+						</div><!-- .row -->
+					</div>
+					<div class="modal-footer">
+						<button type="submit" class="btn btn-primary">Save</button>
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+{%- endmacro %}
+
+
+{% macro add_ticker() %}
+	<div class="modal fade" id="add_ticker_modal" tabindex="-1">
+		<div class="modal-dialog modal-sm">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+					<h4 class="modal-title">Add Ticker</h4>
+				</div>
+				<form action="/add_ticker" method="POST">
+					<div class="modal-body">
+						<div class="form-group">
+							<label for="ticker" class="control-label">Ticker:</label>
+							<input type="text" id="ticker" name="ticker" class="form-control" placeholder="BOX" required>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button type="submit" class="btn btn-primary">Add</button>
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+{%- endmacro %}
+
+

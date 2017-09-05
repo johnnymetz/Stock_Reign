@@ -1,0 +1,57 @@
+<!-- Flash Alert Macro Description -->
+{# Renders Flash Alert.
+
+Example:  {{ flash_alert(category='danger') }}
+
+#}
+
+<!-- Flash Alert Macro -->
+{% macro flash_alert(flash_messages=get_flashed_messages(), category='info') -%}
+
+	<!-- Alert containing all Flashed Messages -->
+	{% if flash_messages %}
+	  <div class="alert alert-{{ category }} alert-dismissible" role="alert">
+	    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	    <ul>
+	    	{% for message in flash_messages %}
+	    		<li>{{ message }}</li>
+	    	{% endfor %}
+	    </ul>
+	  </div>
+	{% endif %}
+
+{%- endmacro %}
+
+
+
+<!-- Flash Alerts Individually Macro Description -->
+{# Renders Flash Alert.
+
+Example:  {{ flash_alerts_ind() }}
+
+#}
+
+<!-- Flash Alerts Individually -->
+{% macro flash_alerts_ind(flash_messages=get_flashed_messages(with_categories=True), center_message=False) -%}
+
+	<!-- Alert for each Flash Message -->
+	{% if flash_messages %}
+  	{% for category, message in flash_messages %}
+  		{% if category == 'message' %}
+  			<p>{{ message }} --> This flash needs a <strong>CATEGORY</strong></p>
+  		{% else %}
+	  		<div class="alert alert-{{ category }} alert-dismissible" role="alert">
+			    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+			    <p {% if center_message %} class="text-center" {% endif %}>{{ message }}</p>
+			  </div>
+			{% endif %}
+  	{% endfor %}
+	{% endif %}
+
+{%- endmacro %}
+
+
+
+
+
+

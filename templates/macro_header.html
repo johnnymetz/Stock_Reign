@@ -1,0 +1,16 @@
+{% macro header(wrapper='container') %}
+
+	<nav class="navbar navbar-default">
+		<div class="{{ wrapper }}">
+			<div class="navbar-header">
+				<a href="/" class="navbar-brand">Reign Supreme</a>
+			</div>
+			<ul class="nav navbar-nav">
+				<li id="home"><a href="#">Home</a></li>
+				<li id="reset"><a href="/clear">Reset</a></li>
+				<li id="update"><a href="/update_tickers">Update All</a></li>
+			</ul>
+		</div>
+	</nav>
+
+{%- endmacro %}
