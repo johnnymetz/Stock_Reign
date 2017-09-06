@@ -1,11 +1,16 @@
 /* Required body padding for Fixed Navbar */
 body {
 	padding-top: 65px;
-	background-color: steelblue;  /* #ccc cadetblue */
+	background: url('../images/blue_map_wallpaper.jpg') center no-repeat;
+	background-size: cover;
+	/*background-color: steelblue;*/
 }
 /* Style wells */
 div.well {
 	background-color: #f8f8f8;
+	border: 1px solid #000;
+	/*box-shadow: 10px 10px 10px #888;*/
+	/*opacity: 0.85;*/
 }
 /* Style Ticker */
 #ticker-header {
@@ -43,6 +48,7 @@ div.row-group-label {
 	font-weight: bold;
 	background-color: #808080;
 	color: #fff;
+	position: -webkit-sticky;  /* for safari */
 	position: sticky;
 	top: 51px;
 }

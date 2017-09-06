@@ -22,6 +22,7 @@
 	<div class="container-fluid">
 		{{ flash_alerts_ind(center_message=True) }}
 
+		<!-- Toolbar -->
 		<div class="row">
 			<div class="col-sm-12">
 				<div class="well">
@@ -42,13 +43,16 @@
 					</div>
 				</div><!-- .well -->
 			</div><!-- .col-sm-6 -->
+		</div><!-- .row -->
+
+		<div class="row">
+			<!-- Raw Data Table -->
 			<div class="col-sm-6">
 				<div class="well">
 					<table class="display">
 						<thead>
 							<tr>
 								<th>Date</th>
-								<th>Open</th>
 								<th>Close</th>
 								<th>% Change</th>
 								<th>Volume</th>
@@ -58,9 +62,12 @@
 							{% for item in raw_data %}
 								<tr>
 									<td>{{ item.Date.strftime('%Y-%m-%d') }}</td>
-									<td>{{ item.Open | round(2) }}</td>
 									<td>{{ item.Close | round(2) }}</td>
-									<td class="{{ item.pct_change_category }}">{{ (item.pct_change * 100) | round(2) }}%</td>
+									{% if not loop.first %}
+										<td class="{{ item.percent_change_category }}">{{ '${:,.2f}'.format(item.percent_change * 100) }}</td>
+									{% else %}
+										<td>N/A</td>
+									{% endif %}
 									<td>{{ item.Volume | round(2) }}</td>
 								</tr>
 							{% endfor %}
@@ -91,7 +98,7 @@
 								</tr>
 								<tr>
 									<th>% Change</th>
-									<td class="{{ stats.total_pct_change_category }}">{{ (stats.total_pct_change * 100) | round(2) }}%</td>
+									<td class="{{ stats.percent_change_total_category }}">{{ (stats.percent_change_total * 100) | round(2) }}%</td>
 								</tr>
 							</tbody>
 						</table>
@@ -122,16 +129,16 @@
 								{#
 								<tr>
 									<th>Low</th>
-									<td class="{{ stats.min_pct_change_category }}">{{ (stats.pct_change.min * 100) | round(2) }}%</td>
+									<td class="{{ stats.percent_change_min_category }}">{{ (stats.percent_change.min * 100) | round(2) }}%</td>
 								</tr>
 								<tr>
 									<th>High</th>
-									<td class="{{ stats.max_pct_change_category }}">{{ (stats.pct_change.max * 100) | round(2) }}%</td>
+									<td class="{{ stats.percent_change_max_category }}">{{ (stats.percent_change.max * 100) | round(2) }}%</td>
 								</tr>
 								#}
 								<tr>
 									<th>Avg % Change</th>
-									<td class="{{ stats.avg_pct_change_category }}">{{ (stats.pct_change.mean * 100) | round(2) }}%</td>
+									<td class="{{ stats.percent_change_avg_category }}">{{ (stats.percent_change.mean * 100) | round(2) }}%</td>
 								</tr>
 							</tbody>
 						</table>

@@ -19,34 +19,28 @@ def index():
     df = pd.read_pickle('data/pickles/{}.pickle'.format(session['ticker']))
     start = session['range']['start']
     end = session['range']['end']
-    df = df.loc[start:end][['Open', 'Close', 'Volume']]
-
-    def calculate_pct_change(row):
-        pct_change = (row['Close'] - row['Open']) / row['Open']
-        return pct_change
+    df = df.loc[start:end][['Close', 'Volume']]
 
     def get_pct_change_category(row):
-        if row['pct_change'] > 0:
+        if row['percent_change'] > 0:
             return 'positive'
-        elif row['pct_change'] < 0:
+        elif row['percent_change'] < 0:
             return 'negative'
         else:
             return 'default'
 
-    df['pct_change'] = df.apply(func=calculate_pct_change, axis=1)
-    df['pct_change_category'] = df.apply(func=get_pct_change_category, axis=1)
+    df['percent_change'] = df.Close.pct_change()
+    df['percent_change_category'] = df.apply(func=get_pct_change_category, axis=1)
 
     # Extract data
     stats = df.describe().to_dict()
-    stats['min_pct_change_category'] = get_pct_change_category(row={'pct_change': df['pct_change'].min()})
-    stats['max_pct_change_category'] = get_pct_change_category(row={'pct_change': df['pct_change'].max()})
+    stats['percent_change_min_category'] = get_pct_change_category(row={'percent_change': df['percent_change'].min()})
+    stats['percent_change_max_category'] = get_pct_change_category(row={'percent_change': df['percent_change'].max()})
+    stats['percent_change_avg_category'] = get_pct_change_category(row={'percent_change': df['percent_change'].mean()})
     most_recent_date = df.index[-1]
-    df_pct_change = (df.loc[most_recent_date, 'Close'] - df.loc[start, 'Close']) / df.loc[start, 'Close']
-    df_total_days = (most_recent_date - start).days
-    stats['total_pct_change'] = df_pct_change
-    stats['total_pct_change_category'] = get_pct_change_category(row={'pct_change': stats['total_pct_change']})
-    stats['total_days'] = df_total_days
-    stats['avg_pct_change_category'] = get_pct_change_category(row={'pct_change': df['pct_change'].mean()})
+    stats['percent_change_total'] = (df.loc[most_recent_date, 'Close'] - df.loc[start, 'Close']) / df.loc[start, 'Close']
+    stats['percent_change_total_category'] = get_pct_change_category(row={'percent_change': stats['percent_change_total']})
+    stats['total_days'] = (most_recent_date - start).days
     raw_data = df.reset_index().to_dict(orient='records')
 
     # Chart data
@@ -89,7 +83,7 @@ def add_ticker():
     session['ticker'] = ticker
     session['all_tickers'].append(ticker)
     stock_data = pdr.get_data_yahoo(ticker.upper())
-    stock_data.to_pickle('pickles/stocks/{}.pickle'.format(ticker))
+    stock_data.to_pickle('data/pickles/{}.pickle'.format(ticker))
     return redirect(url_for('index'))
 
 
