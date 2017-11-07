@@ -1,0 +1,284 @@
+{% from 'macro_header.html' import header %}
+{% from 'macros_alerts.html' import flash_alerts_ind %}
+{% from 'modals.html' import add_ticker, edit_dates %}
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Stock Reign</title>
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/datatables.min.css') }}">
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/c3.min.css') }}">
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/jquery-ui.min.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+
+	{{ header('container-fluid') }}
+
+	<div class="container-fluid">
+		{{ flash_alerts_ind(center_message=True) }}
+
+		<!-- Toolbar -->
+		<div class="row">
+			<div class="col-sm-12">
+				<div class="well">
+					<div id="bar">
+						<span id="ticker-header">{{ session.ticker | upper }}</span>
+						<div>
+							<form action="/change_ticker" method="POST" id="ticker_form" style="display: inline;">
+								<select id="ticker" name="ticker" class="form-control" style="width: 150px; display: inline;">
+									<option>More Tickers</option>
+									{% for ticker in session.all_tickers %}
+										<option value="{{ ticker }}">{{ ticker | upper }}</option>
+									{% endfor %}
+								</select>
+							</form>
+							<button class="btn btn-default" data-toggle="modal" data-target="#add_ticker_modal"><span class="glyphicon glyphicon-plus"></span> Add Ticker</button>
+							<button class="btn btn-default" data-toggle="modal" data-target="#edit_dates_modal"><span class="glyphicon glyphicon-pencil"></span> Edit Date Range</button>
+						</div>
+					</div>
+				</div><!-- .well -->
+			</div><!-- .col-sm-6 -->
+		</div><!-- .row -->
+
+		<div class="row">
+			<!-- Raw Data Table -->
+			<div class="col-sm-6">
+				<div class="well">
+					<table class="display">
+						<thead>
+							<tr>
+								<th>Date</th>
+								<th>Close</th>
+								<th>% Change</th>
+								<th>Volume</th>
+							</tr>
+						</thead>
+						<tbody>
+							{% for item in raw_data %}
+								<tr>
+									<td>{{ item.Date.strftime('%Y-%m-%d') }}</td>
+									<td>{{ item.Close | round(2) }}</td>
+									{% if not loop.first %}
+										<td class="{{ item.percent_change_category }}">{{ '${:,.2f}'.format(item.percent_change * 100) }}</td>
+									{% else %}
+										<td>N/A</td>
+									{% endif %}
+									<td>{{ item.Volume | round(2) }}</td>
+								</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+				</div><!-- .well -->
+			</div><!-- .col-sm-6 -->
+
+			<!-- Results -->
+			<div class="col-sm-6">
+				<div class="well">
+					<h4>Range Breakdown</h4>
+					<div>
+						<div class="row-group-label">TOTAL</div>
+						<table class="table breakdown">
+							<tbody>
+								<tr>
+									<th>Start Date</th>
+									<td>{{ session.range.start.strftime('%Y-%m-%d') }}</td>
+								</tr>
+								<tr>
+									<th>End Date</th>
+									<td>{{ session.range.end.strftime('%Y-%m-%d') }}</td>
+								</tr>
+								<tr>
+									<th>Total days</th>
+									<td>{{ stats.total_days }}</td>
+								</tr>
+								<tr>
+									<th>% Change</th>
+									<td class="{{ stats.percent_change_total_category }}">{{ (stats.percent_change_total * 100) | round(2) }}%</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+					<div>
+						<div class="row-group-label">Price</div>
+						<table class="table breakdown">
+							<tbody>
+								<tr>
+									<th>Low</th>
+									<td>{{ stats.Close.min | round(2) }}</td>
+								</tr>
+								<tr>
+									<th>High</th>
+									<td>{{ stats.Close.max | round(2) }}</td>
+								</tr>
+								<tr>
+									<th>Avg</th>
+									<td>{{ stats.Close.mean | round(2) }}</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+					<div>
+						<div class="row-group-label">Percent Change</div>
+						<table class="table breakdown">
+							<tbody>
+								{#
+								<tr>
+									<th>Low</th>
+									<td class="{{ stats.percent_change_min_category }}">{{ (stats.percent_change.min * 100) | round(2) }}%</td>
+								</tr>
+								<tr>
+									<th>High</th>
+									<td class="{{ stats.percent_change_max_category }}">{{ (stats.percent_change.max * 100) | round(2) }}%</td>
+								</tr>
+								#}
+								<tr>
+									<th>Avg % Change</th>
+									<td class="{{ stats.percent_change_avg_category }}">{{ (stats.percent_change.mean * 100) | round(2) }}%</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+					<div>
+						<div class="row-group-label">Volume</div>
+						<table class="table breakdown">
+							<tbody>
+								<tr>
+									<th>Low</th>
+									<td>{{ "{:,}".format(stats.Volume.min | int) }}</td>
+								</tr>
+								<tr>
+									<th>High</th>
+									<td>{{ "{:,}".format(stats.Volume.max | int) }}</td>
+								</tr>
+								<tr>
+									<th>Average</th>
+									<td>{{ "{:,}".format(stats.Volume.mean | int) }}</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div><!-- .well -->
+
+				<!-- Stock Chart -->
+				<div class="well">
+					<h4 class="text-center">Stock Chart</h4>
+					<div id="stock_chart"></div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Modals -->
+		{{ edit_dates() }}
+		{{ add_ticker() }}
+		<div style="height: 200px;"></div>
+
+	</div><!-- .container-fluid -->
+
+	<footer class="text-center">
+		&copy; Copyright Metz Money Co. 2017
+	</footer>
+
+  <script src="{{ url_for('static', filename='js/jquery-3.1.1.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/datatables.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/d3-v3.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/c3.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/jquery-ui.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/jquery.floatThead.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+  <script>
+
+  	$(document).ready(function(){
+
+  		// Submit Ticker Form
+  		$('#ticker').change(function(){
+  			$('#ticker_form').submit();
+  		});
+
+  		// DataTables
+  		$('.display').DataTable({
+  			info: false,
+  			pageLength: 25
+  		});
+  		$('.display').floatThead({
+  			top: 50  // navbar is 50px high
+  		});
+
+  		// jQuery UI Datepicker
+  		$('.datepicker').datepicker({
+  			beforeShowDay: $.datepicker.noWeekends
+  		});
+  		one_month_prior = new Date();
+  		one_month_prior.setMonth(one_month_prior.getMonth() - 1);
+  		$('#start_date').datepicker('setDate', getLastWeekday(one_month_prior));
+  		$('#end_date').datepicker('setDate', getLastWeekday(new Date()));
+
+  		// Adjust Start Date relative to End Date
+  		$('#one-week').click(function(){
+  			var newStart = $('#end_date').datepicker('getDate');
+  			newStart.setDate(newStart.getDate() - 7);
+  			adjustDate(newStart, $(this));
+  		});
+  		$('#one-month').click(function(){
+  			var newStart = $('#end_date').datepicker('getDate');
+  			newStart.setMonth(newStart.getMonth() - 1);
+  			adjustDate(newStart, $(this));
+  		});
+  		$('#three-months').click(function(){
+  			var newStart = $('#end_date').datepicker('getDate');
+  			newStart.setMonth(newStart.getMonth() - 3);
+  			adjustDate(newStart, $(this));
+  		});
+  		$('#six-months').click(function(){
+  			var newStart = $('#end_date').datepicker('getDate');
+  			newStart.setMonth(newStart.getMonth() - 6);
+  			adjustDate(newStart, $(this));
+  		});
+  		$('#one-year').click(function(){
+  			var newStart = $('#end_date').datepicker('getDate');
+  			newStart.setYear(newStart.getFullYear() - 1);
+  			adjustDate(newStart, $(this));
+  		});
+
+  		// Construct Chart
+  		var stock_chart = c3.generate({
+  			bindto: '#stock_chart',
+  			padding: {left: 60, right: 17},
+  			data: {
+  				x: 'x',
+  				columns: [
+  					{{ chart_data.dates | tojson }},
+  					{{ chart_data.prices | tojson }}
+  				]
+  			},
+  			axis: {
+  				x: {
+  					label: {text: 'Time', position: 'outer-right'},
+  					type: 'timeseries',
+  					tick: {
+  						count: 4,
+  						format: '%m/%d/%y'
+  					}
+  				},
+  				y: {
+  					label: {text: 'Price', position: 'outer-middle'},
+  					tick: {format: d3.format('.2f')}
+  				}
+  			},
+  			grid: {
+  				x: {show: true},
+  				y: {show: true}
+  			},
+  			point: {show: false}
+  		});
+
+  	});
+
+  </script>
+</body>
+</html>

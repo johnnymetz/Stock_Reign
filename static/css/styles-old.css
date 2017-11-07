@@ -1,0 +1,65 @@
+/* Required body padding for Fixed Navbar */
+body {
+	padding-top: 65px;
+	background-color: #ccc;
+	/*background: url('../images/blue_map_wallpaper.jpg') center no-repeat;
+	background-size: cover;*/
+}
+/* Style Ticker */
+#ticker-header {
+	font-size: 24px;
+	font-weight: 700;
+	letter-spacing: 1px;
+}
+/* Button Spacing */
+form#toolbar {
+	display: flex;
+	justify-content: space-between;
+}
+div.justify-buttons {
+	display: flex;
+	justify-content: space-around;
+}
+/* Style DataTables Thead */
+.display > thead {
+	background-color: #fff;
+}
+/* Style Percentages */
+.positive {
+	color: green;
+	font-weight: bold;
+}
+.negative {
+	color: red;
+	font-weight: bold;
+}
+.default {
+	font-weight: bold;
+}
+/* Style Breakdown Table */
+div.row-group-label {
+	text-align: center;
+	font-weight: bold;
+	background-color: #808080;
+	color: #fff;
+	position: -webkit-sticky;  /* for safari */
+	position: sticky;
+	top: 51px;
+}
+table.breakdown {
+	margin-bottom: 0px;
+}
+table.breakdown td {
+	width: 50%;
+}
+/* Remove Button click outline */
+.btn:focus, .btn:active {
+	outline: none !important;
+}
+/* Style Footer */
+footer {
+	background-color: #333;
+	color: #fff;
+	padding: 20px 0px;
+}
+
