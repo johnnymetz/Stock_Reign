@@ -1,0 +1,7 @@
+# Results: today's price = 22.71
+# - Simple Linear Regression (Date, Adj Close): 17.09
+# - Multiple Linear Regression (Date, Volume, Adj Close): 16.97
+# - Polynomial Regression (Date, Adj Close) [degree=2]: 25.39
+# - Polynomial Regression (Date, Adj Close) [degree=3]: 25.51
+# - Polynomial Regression (Date, Adj Close) [degree=4]: 25.62
+# - Decision Tree Regression (Date, Adj Close) [degree=2]: 22.12

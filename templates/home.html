@@ -1,0 +1,40 @@
+{% from 'macros_alerts.html' import flash_alerts %}
+
+{% extends 'base.html' %}
+
+
+{% block content %}
+
+	<div class="container-fluid">
+		<h4>All Data</h4>
+		{{ flash_alerts() }}
+
+		<table class="table table-hover">
+			<thead>
+				<tr>
+					<th>Symbol</th>
+					<th>Current Price</th>
+					<th>Volume</th>
+					{% for k in duration_keys %}
+						<th>% Change ({{ duration_to_name[k] }})</th>
+					{% endfor %}
+					<th></th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for item in data %}
+					<tr>
+						<td>{{ item.symbol }}</td>
+						<td>{{ '{:,.2f}'.format(item.data['Adj Close']) | replace('$nan', 'N/A') }}</td>
+						<td>{{ item.data['Volume'] | int }}</td>
+						{% for k in duration_keys %}
+							<td class="{{ item.data[k] | get_pct_change_category }}">{{ '{:+,.2%}'.format(item.data[k]) | replace('nan%', 'N/A') }}</td>
+						{% endfor %}
+						<td><a class="btn btn-default btn-xs" href="{{ url_for('detail', ticker=item.symbol) }}">View</a></td>
+					</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div><!-- .container-fluid -->
+
+{% endblock %}

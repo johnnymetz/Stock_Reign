@@ -15,18 +15,10 @@
 
 	<div class="container-fluid">
 		{{ flash_alerts() }}
+
 		<div id="toolbar">
 			{# Ticker #}
 			<span id="current-ticker">{{ session.current_ticker }}</span>
-			<form action="{{ url_for('update_ticker') }}" method="POST" class="form-inline" id="ticker_form">
-				<select id="ticker" name="ticker" class="form-control">
-					<option>More Tickers</option>
-					{% for ticker in all_tickers %}
-						<option value="{{ ticker }}">{{ ticker.ticker }}</option>
-					{% endfor %}
-				</select>
-				<button type="submit" class="btn btn-default">Update Symbol</button>
-			</form>
 			{# Dates #}
 			<form action="{{ url_for('update_dates') }}" method="POST" class="form-inline">
 				<input type="text" id="daterange" name="daterange" class="form-control">
@@ -35,7 +27,7 @@
 		</div>
 
 		<div class="row">
-			{# RAW DATA #}
+			{# Raw Data #}
 			<div class="col-sm-6">
 				<table class="table table-hover">
 					<thead>

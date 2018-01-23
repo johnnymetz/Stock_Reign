@@ -33,7 +33,7 @@
 								<select id="ticker" name="ticker" class="form-control" style="width: 150px; display: inline;">
 									<option>More Tickers</option>
 									{% for ticker in session.all_tickers %}
-										<option value="{{ ticker }}">{{ ticker | upper }}</option>
+										<option value="{{ ticker }}">{{ ticker.ticker }}</option>
 									{% endfor %}
 								</select>
 							</form>

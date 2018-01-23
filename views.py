@@ -1,6 +1,7 @@
 from app import app
 from flask import request, session, render_template, redirect, url_for, flash
 from models import Stock
+import constants as const
 import random
 import datetime
 from dateutil.relativedelta import relativedelta
@@ -18,11 +19,76 @@ def get_pct_change_category(value):
 
 
 def get_non_weekend(date):
-    if date.weekday() == 5:  # Saturday
+    if date.weekday() == 5:
+        # Saturday --> return Friday
         return date - datetime.timedelta(days=1)
     elif date.weekday() == 6:  # Sunday
+        # Sunday --> return Monday
         return date + datetime.timedelta(days=1)
     return date
+
+
+@app.route('/home')
+def home():
+    """All stocks in DB + percent change over various periods."""
+    all_stocks = Stock.query.all()
+    data = []
+    for stock_obj in all_stocks:
+        df = stock_obj.price_history
+        # ipo_date = df.index[0]
+        # latest_date = df.index[-1]
+        for name, periods in const.DURATIONS:
+            df[name] = df['Adj Close'].pct_change(periods)
+        item = {
+            'symbol': stock_obj.ticker,
+            'data': df.iloc[-1, :].to_dict()  # most recent data
+        }
+        data.append(item)
+
+    return render_template('home.html',
+                           data=data,
+                           duration_keys=[i[0] for i in const.DURATIONS],
+                           duration_to_name=const.DURATION_TO_NAME)
+
+
+@app.route('/<ticker>', methods=['GET', 'POST'])
+def detail(ticker):
+    """Details + Graph for a speciic stock."""
+    df = Stock.query.filter_by(ticker=ticker).first().price_history
+    ipo_date = df.index[0]
+    latest_date = df.index[-1]
+    if 'start_date' not in session:
+        session['start_date'] = get_non_weekend(latest_date - relativedelta(months=3))
+        session['end_date'] = latest_date
+
+    # Reduce DF between dates
+    df = df.loc[session['start_date']:session['end_date']][['Adj Close', 'Volume']]
+    df['percent_change'] = df['Adj Close'].pct_change(periods=1)  # pct change for 1 day
+
+    # Extract Data
+    stats = df.describe().to_dict()
+    stats['total_days'] = (session['end_date'] - session['start_date']).days
+    start_date_price = df.loc[session['start_date'], 'Adj Close']
+    end_date_price = df.loc[session['end_date'], 'Adj Close']
+    stats['percent_change_range'] = (end_date_price - start_date_price) / start_date_price
+    raw_data = df.reset_index().to_dict(orient='records')
+
+    # Chart data
+    dates = [i.strftime('%Y-%m-%d') for i in df.index.tolist()]
+    prices = df['Adj Close'].tolist()
+    dates.insert(0, 'x')
+    prices.insert(0, ticker)
+    chart_data = {
+        'dates': dates,
+        'prices': prices
+    }
+    return render_template('detail.html',
+                           ipo_date=ipo_date,
+                           latest_date=latest_date,
+                           raw_data=raw_data,
+                           stats=stats,
+                           chart_data=chart_data)
+
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -31,9 +97,10 @@ def index():
     # Get Stocks for DB
     all_tickers = Stock.query.all()
     random_ticker = random.choice(all_tickers).ticker
+    ticker = session.get('current_ticker', random_ticker)
 
     # Construct DF for selected stock
-    df_all = Stock.query.filter_by(ticker=session.get('current_ticker', random_ticker)).first().price_history
+    df_all = Stock.query.filter_by(ticker=ticker).first().price_history
     ipo_date = df_all.index[0]
     latest_date = df_all.index[-1]
 
@@ -63,12 +130,13 @@ def index():
         'prices': prices
     }
 
-    # print(session['start_date'], type(session['start_date']))
-    # print(session['end_date'], ipo_date, latest_date)
-    # print(stats['total_days'])
-
-    return render_template('stock_index.html', all_tickers=all_tickers, ipo_date=ipo_date, latest_date=latest_date,
-                           raw_data=raw_data, stats=stats, chart_data=chart_data)
+    return render_template('stock_index.html',
+                           all_tickers=all_tickers,
+                           ipo_date=ipo_date,
+                           latest_date=latest_date,
+                           raw_data=raw_data,
+                           stats=stats,
+                           chart_data=chart_data)
 
 
 @app.route('/update_dates', methods=['POST'])

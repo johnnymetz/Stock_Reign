@@ -1,3 +1,8 @@
+# Add parent
+import os, sys
+APP_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # parent dir
+sys.path.append(APP_DIR)
+
 from matplotlib import style, dates, pyplot as plt
 from mpl_toolkits.mplot3d import axes3d
 import pandas as pd
